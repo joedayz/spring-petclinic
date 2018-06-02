@@ -16,6 +16,10 @@ public class OwnerController {
 	@GetMapping("/owners/")
 	public String processFindForm(Owner owner, Map<String, Object> model) {
 		
+		if(owner.getLastName()==null) {
+			owner.setLastName("");
+		}
+		
 		List<Owner> results = this.ownerRepository.findByLastName(owner.getLastName());
 		
 		model.put("selections", results);
