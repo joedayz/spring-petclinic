@@ -1,61 +1,104 @@
 package com.tumi.demo.owner;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.springframework.beans.support.MutableSortDefinition;
+import org.springframework.beans.support.PropertyComparator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.tumi.demo.model.NamedEntity;
+import com.tumi.demo.visit.Visit;
 
+/**
+ * Simple business object representing a pet.
+ *
+ * @author Ken Krebs
+ * @author Juergen Hoeller
+ * @author Sam Brannen
+ */
 @Entity
-@Table(name ="pets")
-public class Pet extends NamedEntity{  //mascota
+@Table(name = "pets")
+public class Pet extends NamedEntity {
 
-	//constructor sin argumentos es OBLIGATORIO
-	
-	@Column(name="birth_date")
-	@Temporal(TemporalType.DATE)
-	@DateTimeFormat(pattern="yyyy-MM-dd")
-	private Date birthDate;
-	
-	@ManyToOne
-	@JoinColumn(name="type_id")  //FK
-	private PetType type;
-	
-	@ManyToOne
-	@JoinColumn(name="owner_id")  //FK
-	private Owner owner;
+    @Column(name = "birth_date")
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birthDate;
 
-	public Date getBirthDate() {
-		return birthDate;
-	}
+    @ManyToOne
+    @JoinColumn(name = "type_id")
+    private PetType type;
 
-	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
-	}
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private Owner owner;
 
-	public PetType getType() {
-		return type;
-	}
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "petId", fetch = FetchType.EAGER)
+    private Set<Visit> visits = new LinkedHashSet<>();
 
-	public void setType(PetType type) {
-		this.type = type;
-	}
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
 
-	public Owner getOwner() {
-		return owner;
-	}
+    public Date getBirthDate() {
+        return this.birthDate;
+    }
 
-	public void setOwner(Owner owner) {
-		this.owner = owner;
-	}
-	
-	
+    public PetType getType() {
+        return this.type;
+    }
+
+    public void setType(PetType type) {
+        this.type = type;
+    }
+
+    public Owner getOwner() {
+        return this.owner;
+    }
+
+    protected void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
+    protected Set<Visit> getVisitsInternal() {
+        if (this.visits == null) {
+            this.visits = new HashSet<>();
+        }
+        return this.visits;
+    }
+
+    protected void setVisitsInternal(Set<Visit> visits) {
+        this.visits = visits;
+    }
+
+    public List<Visit> getVisits() {
+        List<Visit> sortedVisits = new ArrayList<>(getVisitsInternal());
+        PropertyComparator.sort(sortedVisits,
+                new MutableSortDefinition("date", false, false));
+        return Collections.unmodifiableList(sortedVisits);
+    }
+
+    public void addVisit(Visit visit) {
+        getVisitsInternal().add(visit);
+        visit.setPetId(this.getId());
+    }
+
 }
+

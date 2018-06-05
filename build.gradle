@@ -31,8 +31,10 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf'){
 		exclude group: 'nz.net.ultraq.thymeleaf', module: 'thymeleaf-layout-dialect'
 	}
+
 	
-	
+	compile('javax.cache:cache-api')
+	compile('org.ehcache:ehcache')
 	
 	compile('org.springframework.boot:spring-boot-starter-web')
 	
