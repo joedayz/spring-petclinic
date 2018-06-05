@@ -1,65 +1,112 @@
-CREATE DATABASE IF NOT EXISTS petclinic;
+create user PETCLINIC identified by PETCLINIC default tablespace USERS;
 
-ALTER DATABASE petclinic
-  DEFAULT CHARACTER SET utf8
-  DEFAULT COLLATE utf8_general_ci;
+--- Asignando ROLES y Privilegios ---
+grant connect,resource,dba,exp_full_database,imp_full_database to  PETCLINIC;
 
-GRANT ALL PRIVILEGES ON petclinic.* TO pc@localhost IDENTIFIED BY 'pc';
+ALTER SESSION SET CURRENT_SCHEMA=PETCLINIC; 
 
-USE petclinic;
 
-CREATE TABLE IF NOT EXISTS vets (
-  id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  first_name VARCHAR(30),
-  last_name VARCHAR(30),
-  INDEX(last_name)
-) engine=InnoDB;
+CREATE TABLE PETCLINIC.vets
+( 
+  id          NUMBER(7)            NOT NULL,
+  first_name          VARCHAR2(100 BYTE)   NOT NULL,
+  last_name          VARCHAR2(100 BYTE)   NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS specialties (
-  id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(80),
-  INDEX(name)
-) engine=InnoDB;
+ALTER TABLE PETCLINIC.vets ADD (
+  CONSTRAINT PK_vets
+ PRIMARY KEY
+ (id));
 
-CREATE TABLE IF NOT EXISTS vet_specialties (
-  vet_id INT(4) UNSIGNED NOT NULL,
-  specialty_id INT(4) UNSIGNED NOT NULL,
-  FOREIGN KEY (vet_id) REFERENCES vets(id),
-  FOREIGN KEY (specialty_id) REFERENCES specialties(id),
-  UNIQUE (vet_id,specialty_id)
-) engine=InnoDB;
+CREATE TABLE PETCLINIC.specialties (
+  id NUMBER(7)            NOT NULL,
+  name VARCHAR2(100 BYTE)   NOT NULL
+) ;
 
-CREATE TABLE IF NOT EXISTS types (
-  id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(80),
-  INDEX(name)
-) engine=InnoDB;
+ALTER TABLE PETCLINIC.specialties ADD (
+  CONSTRAINT PK_specialties
+ PRIMARY KEY
+ (id));
 
-CREATE TABLE IF NOT EXISTS owners (
-  id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  first_name VARCHAR(30),
-  last_name VARCHAR(30),
-  address VARCHAR(255),
-  city VARCHAR(80),
-  telephone VARCHAR(20),
-  INDEX(last_name)
-) engine=InnoDB;
+CREATE TABLE PETCLINIC.vet_specialties (
+  vet_id NUMBER(7)            NOT NULL,
+  specialty_id NUMBER(7)            NOT NULL
+) ;
 
-CREATE TABLE IF NOT EXISTS pets (
-  id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(30),
+ALTER TABLE PETCLINIC.vet_specialties ADD (
+  CONSTRAINT FK_VETS 
+ FOREIGN KEY (vet_id) 
+ REFERENCES PETCLINIC.vets (id));
+ 
+ALTER TABLE PETCLINIC.vet_specialties ADD (
+  CONSTRAINT FK_specialties
+ FOREIGN KEY (specialty_id) 
+ REFERENCES PETCLINIC.specialties (id));
+
+CREATE UNIQUE INDEX PETCLINIC.vet_specialties ON PETCLINIC.vet_specialties
+(vet_id, specialty_id);
+
+CREATE TABLE PETCLINIC.types (
+  id NUMBER(7)            NOT NULL,
+  name VARCHAR2(100 BYTE)   NOT NULL
+) ;
+
+ALTER TABLE PETCLINIC.types ADD (
+  CONSTRAINT PK_types
+ PRIMARY KEY
+ (id));
+
+CREATE TABLE PETCLINIC.owners (
+  id NUMBER(7)            NOT NULL,
+  first_name VARCHAR2(100 BYTE)   NOT NULL,
+  last_name VARCHAR2(100 BYTE)   NOT NULL,
+  address VARCHAR2(200 BYTE)   NOT NULL,
+  city VARCHAR2(100 BYTE)   NOT NULL,
+  telephone VARCHAR2(100 BYTE)   NOT NULL
+) ;
+
+ALTER TABLE PETCLINIC.owners ADD (
+  CONSTRAINT PK_owners
+ PRIMARY KEY
+ (id));
+ 
+CREATE TABLE PETCLINIC.pets (
+  id NUMBER(7)            NOT NULL,
+  name VARCHAR2(100 BYTE)   NOT NULL,
   birth_date DATE,
-  type_id INT(4) UNSIGNED NOT NULL,
-  owner_id INT(4) UNSIGNED NOT NULL,
-  INDEX(name),
-  FOREIGN KEY (owner_id) REFERENCES owners(id),
-  FOREIGN KEY (type_id) REFERENCES types(id)
-) engine=InnoDB;
+  type_id NUMBER(7)            NOT NULL,
+  owner_id NUMBER(7)            NOT NULL
+) ;
 
-CREATE TABLE IF NOT EXISTS visits (
-  id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  pet_id INT(4) UNSIGNED NOT NULL,
+ALTER TABLE PETCLINIC.pets ADD (
+  CONSTRAINT PK_pets
+ PRIMARY KEY
+ (id));
+ 
+ALTER TABLE PETCLINIC.pets ADD (
+  CONSTRAINT FK_pets_owner 
+ FOREIGN KEY (owner_id) 
+ REFERENCES PETCLINIC.owners (id));
+ 
+ALTER TABLE PETCLINIC.pets ADD (
+  CONSTRAINT FK_pets_specialties_1
+ FOREIGN KEY (type_id) 
+ REFERENCES PETCLINIC.types (id));
+ 
+CREATE TABLE PETCLINIC.visits (
+  id NUMBER(7)            NOT NULL,
+  pet_id NUMBER(7)            NOT NULL,
   visit_date DATE,
-  description VARCHAR(255),
-  FOREIGN KEY (pet_id) REFERENCES pets(id)
-) engine=InnoDB;
+  description VARCHAR2(100 BYTE)   NOT NULL
+) ;
+
+ALTER TABLE PETCLINIC.visits ADD (
+  CONSTRAINT PK_visits
+ PRIMARY KEY
+ (id));
+ 
+ALTER TABLE PETCLINIC.visits ADD (
+  CONSTRAINT FK_pets
+ FOREIGN KEY (pet_id) 
+ REFERENCES PETCLINIC.pets (id));
+
