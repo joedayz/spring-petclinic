@@ -28,6 +28,9 @@ ext["thymeleaf.version"] = "3.0.6.RELEASE"
 dependencies {
 
 	compile ("com.oracle:ojdbc7:12.1.0.2")
+	
+	compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+	
 
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf'){
 		exclude group: 'nz.net.ultraq.thymeleaf', module: 'thymeleaf-layout-dialect'
